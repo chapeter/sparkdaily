@@ -66,15 +66,12 @@ def getUsers():
     return user_list
 
 
-#eceivers = getUsers()
-receivers = ['chapeter@cisco.com', 'crpeterson@gmail.com']
 sender = config.sender
 server = config.server
 server_port = config.server_port
 
 msg = MIMEMultipart()
 body = MIMEText(str(createEmailBody(todayMessage())).strip())
-#print body
 
 msg['Subject'] = "Daily Summary"
 msg['From'] = sender
@@ -82,7 +79,6 @@ msg['To'] = ", ".join(getUsers())
 msg.attach(body)
 
 
-#print msg
 smtpObj = smtplib.SMTP(server, server_port)
 smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
 
