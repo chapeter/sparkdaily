@@ -33,6 +33,8 @@ def getMessages():
 def todayMessage():
     messages = getMessages()
     todaymsg_list = []
+    if len(messages) == 0:
+        exit()
     for message in messages:
         msgdate = message[u'created']
         msgdate = iso8601.parse_date(msgdate).date()
@@ -115,7 +117,7 @@ server_port = config.server_port
 msg = MIMEMultipart()
 body = MIMEText(str(createEmailBody(todayMessage())).strip())
 
-msg['Subject'] = "Daily Summary for %s" % roomtitle
+msg['Subject'] = "Daily Spark Summary for %s" % roomtitle
 msg['From'] = sender
 msg['To'] = ", ".join(getUsers())
 msg.attach(body)
