@@ -42,7 +42,8 @@ def todayMessage():
     return todaymsg_list
 
 def createEmailBody(msg_list):
-    body = "Here is what you may have missed yesterday, %s-%s-%s:\n" % (date.month, date.day, date.year)
+    body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
+           % (roomtitle, date.month, date.day, date.year)
     for message in reversed(msg_list):
         #body = body , str(message[u'personEmail']), ": ", str(message[u'text']), "\n"
         msgtime = str(iso8601.parse_date(message[u'created']).time().hour) + ":" +\
@@ -87,6 +88,26 @@ def getDisplayName(personId):
 
     return displayName
 
+def getRoomTitle(roomId):
+    print roomId
+    url = "https://api.ciscospark.com/v1/rooms/" + roomId
+
+    headers = {
+        'authorization': auth,
+        'cache-control': "no-cache",
+        'content-type': 'application/json'
+    }
+    response = requests.request("GET", url, headers=headers)
+    roominfo = json.loads(response.content)
+    print roominfo
+    title = str(roominfo[u'title'])
+
+    return title
+
+
+roomtitle = getRoomTitle(room)
+
+
 sender = config.sender
 server = config.server
 server_port = config.server_port
@@ -94,7 +115,7 @@ server_port = config.server_port
 msg = MIMEMultipart()
 body = MIMEText(str(createEmailBody(todayMessage())).strip())
 
-msg['Subject'] = "Daily Summary"
+msg['Subject'] = "Daily Summary for %s" % roomtitle
 msg['From'] = sender
 msg['To'] = ", ".join(getUsers())
 msg.attach(body)
