@@ -4,6 +4,7 @@ import requests
 import json
 import iso8601
 import smtplib
+import base64
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -43,7 +44,7 @@ def todayMessage():
             todaymsg_list.append(message)
     return todaymsg_list
 
-def createEmailBody(msg_list):
+def createEmailBody(msg_list, roomId):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (roomtitle, date.month, date.day, date.year)
     for message in reversed(msg_list):
@@ -54,6 +55,7 @@ def createEmailBody(msg_list):
         #body = body + "%s - %s:  \n" % (str(msgtime), str(message[u'personEmail']))
         body = body + "%s - %s: %s \n" % (str(msgtime), getDisplayName(message[u'personId']),
                                           message[u'text'])
+    body = body + "\n\nJoin the chat - https://web.ciscospark.com/#rooms/%s" % getRoomURL(roomId)
     body = body.encode('utf-8').strip()
     return body
 
@@ -91,7 +93,6 @@ def getDisplayName(personId):
     return displayName
 
 def getRoomTitle(roomId):
-    print roomId
     url = "https://api.ciscospark.com/v1/rooms/" + roomId
 
     headers = {
@@ -106,6 +107,12 @@ def getRoomTitle(roomId):
 
     return title
 
+def getRoomURL(roomId):
+    basedecode = base64.b64decode(roomId)
+    roomurl = basedecode.split('/')[-1]
+    #print roomurl
+    return roomurl
+
 
 roomtitle = getRoomTitle(room)
 
@@ -115,7 +122,7 @@ server = config.server
 server_port = config.server_port
 
 msg = MIMEMultipart()
-body = MIMEText(str(createEmailBody(todayMessage())).strip())
+body = MIMEText(str(createEmailBody(todayMessage(), room)).strip())
 
 msg['Subject'] = "Daily Spark Summary for %s" % roomtitle
 msg['From'] = sender
