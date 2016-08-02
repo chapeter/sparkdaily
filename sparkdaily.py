@@ -17,7 +17,8 @@ date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
 
 def getMessages():
     url = "https://api.ciscospark.com/v1/messages"
-    querystring = {"roomId": room}
+    querystring = {"roomId": room,
+                   "max" : 50}
 
     headers = {
         'authorization': auth,
@@ -102,7 +103,6 @@ def getRoomTitle(roomId):
     }
     response = requests.request("GET", url, headers=headers)
     roominfo = json.loads(response.content)
-    print roominfo
     title = str(roominfo[u'title'])
 
     return title
