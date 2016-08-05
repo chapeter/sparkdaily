@@ -7,17 +7,21 @@ import smtplib
 import base64
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import pytz
+import tzlocal
 
 token = config.token
 auth = "Bearer %s" % token
 room = config.roomid
 ignorelist = config.ignorelist
 date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+local = pytz.timezone("America/Chicago")
 
 
 def getMessages():
     url = "https://api.ciscospark.com/v1/messages"
-    querystring = {"roomId": room}
+    querystring = {"roomId": room,
+                   "max" : 50}
 
     headers = {
         'authorization': auth,
@@ -32,13 +36,17 @@ def getMessages():
     return messages
 
 def todayMessage():
+    date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+    local_timezone = tzlocal.get_localzone()
     messages = getMessages()
     todaymsg_list = []
     if len(messages) == 0:
         exit()
     for message in messages:
-        msgdate = message[u'created']
-        msgdate = iso8601.parse_date(msgdate).date()
+        utcmsgdate = message[u'created']
+        utcmsgdate = iso8601.parse_date(utcmsgdate)
+        msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+        msgdate = msgdate.date()
         if date == msgdate:
             #print message[u'personEmail'], ": ", message[u'text']
             todaymsg_list.append(message)
@@ -102,7 +110,6 @@ def getRoomTitle(roomId):
     }
     response = requests.request("GET", url, headers=headers)
     roominfo = json.loads(response.content)
-    print roominfo
     title = str(roominfo[u'title'])
 
     return title
