@@ -40,8 +40,6 @@ def todayMessage():
     local_timezone = tzlocal.get_localzone()
     messages = getMessages()
     todaymsg_list = []
-    if len(messages) == 0:
-        exit()
     for message in messages:
         utcmsgdate = message[u'created']
         utcmsgdate = iso8601.parse_date(utcmsgdate)
@@ -50,6 +48,8 @@ def todayMessage():
         if date == msgdate:
             #print message[u'personEmail'], ": ", message[u'text']
             todaymsg_list.append(message)
+    if len(messages) == 0:
+        exit()
     return todaymsg_list
 
 def createEmailBody(msg_list, roomId):
