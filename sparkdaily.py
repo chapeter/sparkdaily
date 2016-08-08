@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import pytz
 import tzlocal
+import sys
 
 token = config.token
 auth = "Bearer %s" % token
@@ -48,8 +49,8 @@ def todayMessage():
         if date == msgdate:
             #print message[u'personEmail'], ": ", message[u'text']
             todaymsg_list.append(message)
-    if len(messages) == 0:
-        exit()
+    if len(todaymsg_list) == 0:
+        sys.exit("No Messages to send")
     return todaymsg_list
 
 def createEmailBody(msg_list, roomId):
