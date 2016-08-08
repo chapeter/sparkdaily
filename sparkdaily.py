@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import pytz
 import tzlocal
+import sys
 
 token = config.token
 auth = "Bearer %s" % token
@@ -40,8 +41,6 @@ def todayMessage():
     local_timezone = tzlocal.get_localzone()
     messages = getMessages()
     todaymsg_list = []
-    if len(messages) == 0:
-        exit()
     for message in messages:
         utcmsgdate = message[u'created']
         utcmsgdate = iso8601.parse_date(utcmsgdate)
@@ -50,6 +49,8 @@ def todayMessage():
         if date == msgdate:
             #print message[u'personEmail'], ": ", message[u'text']
             todaymsg_list.append(message)
+    if len(todaymsg_list) == 0:
+        sys.exit("No Messages to send")
     return todaymsg_list
 
 def createEmailBody(msg_list, roomId):
