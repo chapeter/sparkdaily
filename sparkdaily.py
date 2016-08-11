@@ -15,9 +15,8 @@ token = config.token
 auth = "Bearer %s" % token
 room = config.roomid
 ignorelist = config.ignorelist
-yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
-today = datetime.datetime.now()
-date = yesterday
+#date = datetime.datetime.now().date()
+date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
 sender = config.sender
 server = config.server
 server_port = config.server_port
@@ -60,7 +59,8 @@ def sendEmail(room):
     userarray = []
     for user in room.users:
         for email in user.emails:
-            userarray.append(email)
+            if email not in config.ignorelist:
+                userarray.append(email)
 
     msg = MIMEMultipart()
     body = MIMEText(str(buildEmailBody(room)).strip())

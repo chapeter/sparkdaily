@@ -70,8 +70,8 @@ class ROOM(object):
 
     @property
     def getMessages(self):
-        yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
-        date = yesterday
+        #date = datetime.datetime.now().date()
+        date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
         local_timezone = tzlocal.get_localzone()
 
         url = "https://api.ciscospark.com/v1/messages"
