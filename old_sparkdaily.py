@@ -137,7 +137,7 @@ msg['From'] = sender
 msg['To'] = ", ".join(getUsers())
 msg.attach(body)
 
-#print msg
+print msg
 
-smtpObj = smtplib.SMTP(server, server_port)
-smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+#smtpObj = smtplib.SMTP(server, server_port)
+#smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
