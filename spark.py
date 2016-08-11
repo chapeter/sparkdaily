@@ -5,6 +5,9 @@ import requests
 import json
 import iso8601
 import datetime
+import pytz
+import tzlocal
+import sys
 
 
 
@@ -67,8 +70,9 @@ class ROOM(object):
 
     @property
     def getMessages(self):
-        #date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
         date = (datetime.datetime.now().date())
+        local_timezone = tzlocal.get_localzone()
+
         url = "https://api.ciscospark.com/v1/messages"
         querystring = {"roomId": self.roomId,
                        "max": 50}
@@ -84,14 +88,16 @@ class ROOM(object):
         messages = messages[u'items']
         todaymsg_list = []
 
-        if len(messages) == 0:
-            exit()
         for message in messages:
-            msgdate = message[u'created']
-            msgdate = iso8601.parse_date(msgdate).date()
+            utcmsgdate = message[u'created']
+            utcmsgdate = iso8601.parse_date(utcmsgdate)
+            msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+            msgdate = msgdate.date()
             if date == msgdate:
                 # print message[u'personEmail'], ": ", message[u'text']
-                todaymsg_list.append(MESSAGE(message))
+                todaymsg_list.append(message)
+        if len(todaymsg_list) == 0:
+            sys.exit("No Messages to send")
         return todaymsg_list
 
 
