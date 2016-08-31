@@ -13,4 +13,6 @@ RUN cp crontab /etc/crontabs/root
 RUN touch /var/log/cron.log
 RUN crond
 
+EXPOSE 80
+
 CMD python sparkdaily.py
