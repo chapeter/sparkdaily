@@ -1,7 +1,6 @@
 __author__ = 'Chad Peterson'
 __email__ = 'chapeter@cisco.com'
 
-import config
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -15,7 +14,7 @@ import os
 token = os.environ['SPARK_TOKEN']
 room = os.environ['SPARK_ROOM']
 auth = "Bearer %s" % token
-ignorelist = config.ignorelist
+#ignorelist = config.ignorelist
 #date = datetime.datetime.now().date()
 date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
 room = ROOM(auth, room)
@@ -58,8 +57,8 @@ def sendEmail(room):
     userarray = []
     for user in room.users:
         for email in user.emails:
-            if email not in config.ignorelist:
-                userarray.append(email)
+            #if email not in config.ignorelist:
+            userarray.append(email)
 
     msg = MIMEMultipart()
     body = MIMEText(str(buildEmailBody(room)).strip())
