@@ -10,16 +10,14 @@ import iso8601
 import datetime
 import pytz
 import tzlocal
+import os
 
-token = config.token
+token = os.environ['SPARK_TOKEN']
+room = os.environ['SPARK_ROOM']
 auth = "Bearer %s" % token
-room = config.roomid
 ignorelist = config.ignorelist
 #date = datetime.datetime.now().date()
 date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
-sender = config.sender
-server = config.server
-server_port = config.server_port
 room = ROOM(auth, room)
 
 
@@ -46,14 +44,15 @@ def buildEmailBody(room):
         displayname = getDisplayName(message['personId'], room.users)
         body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
 
+    body = body.encode('utf-8')
 
     return body
 
 
 def sendEmail(room):
-    sender = config.sender
-    server = config.server
-    server_port = config.server_port
+    sender = os.environ['SENDER']
+    #server = os.environ['SERVER']
+    #server_port = os.environ['SERVER_PORT']
 
     ###Build list of user email addresses
     userarray = []
@@ -70,10 +69,22 @@ def sendEmail(room):
     msg['To'] = ", ".join(userarray)
     msg.attach(body)
 
-    #print msg
+    print msg
 
-    smtpObj = smtplib.SMTP(server, server_port)
-    smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+    #smtpObj = smtplib.SMTP(server, server_port)
+    #smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+
+    #Gmail Settings
+    server = smtplib.SMTP()
+    server.connect('smtp.gmail.com',587)
+    server.ehlo()
+    server.starttls()
+    userid=os.environ['GMAIL_USERID']
+    passwd=os.environ['GMAIL_PASSWORD']
+    server.login(userid,passwd)
+    server.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+
+    print "email sent"
 
     return
 
