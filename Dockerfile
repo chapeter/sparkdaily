@@ -11,8 +11,7 @@ RUN echo '0 5 * * * /usr/bin/python /home/sparkdaily/sparkdaily.py >> /var/log/c
 RUN chmod 0644 crontab
 RUN cp crontab /etc/crontabs/root
 RUN touch /var/log/cron.log
-RUN crond
 
 EXPOSE 80
 
-CMD python sparkdaily.py
+CMD crond
