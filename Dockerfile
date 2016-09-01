@@ -12,4 +12,6 @@ RUN chmod 0644 crontab
 RUN cp crontab /etc/crontabs/root
 RUN touch /var/log/cron.log
 
+EXPOSE 80
+
 CMD crond
