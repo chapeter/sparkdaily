@@ -51,6 +51,7 @@ def buildEmailBody(room):
 def sendEmail(room):
     sender = os.environ['SENDER']
     #server = os.environ['SERVER']
+
     #server_port = os.environ['SERVER_PORT']
 
     ###Build list of user email addresses
