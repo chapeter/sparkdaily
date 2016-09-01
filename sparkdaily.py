@@ -14,9 +14,6 @@ import os
 token = os.environ['SPARK_TOKEN']
 room = os.environ['SPARK_ROOM']
 auth = "Bearer %s" % token
-#ignorelist = config.ignorelist
-#date = datetime.datetime.now().date()
-date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
 room = ROOM(auth, room)
 
 
@@ -30,25 +27,41 @@ def getDisplayName(personId, users):
     return "userID not found"
 
 
-def buildEmailBody(room):
+def msgByDate(room, date):
+    local_timezone = tzlocal.get_localzone()
+    datemsglist = []
+    for message in room.messages:
+        utcmsgdate = message[u'created']
+        utcmsgdate = iso8601.parse_date(utcmsgdate)
+        msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+        msgdate = msgdate.date()
+        if date == msgdate:
+            # print message[u'personEmail'], ": ", message[u'text']
+            datemsglist.append(message)
+    return datemsglist
+
+
+def buildEmailBody(room, date):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (room.title, date.month, date.day, date.year)
     local_timezone = tzlocal.get_localzone()
+    messages = msgByDate(room, date)
 
-    for message in reversed(room.messages):
-        utcmsgtime = message['created']
-        utcmsgtime = iso8601.parse_date(utcmsgtime)
-        localmsgtime = utcmsgtime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-        timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
-        displayname = getDisplayName(message['personId'], room.users)
-        body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
+    for message in reversed(messages):
+        if 'text' in message.keys():
+            utcmsgtime = message['created']
+            utcmsgtime = iso8601.parse_date(utcmsgtime)
+            localmsgtime = utcmsgtime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+            timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
+            displayname = getDisplayName(message['personId'], room.users)
+            body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
 
     body = body.encode('utf-8')
 
     return body
 
 
-def sendEmail(room):
+def sendEmail(room, date):
     sender = os.environ['SENDER']
     #server = os.environ['SERVER']
 
@@ -62,7 +75,7 @@ def sendEmail(room):
             userarray.append(email)
 
     msg = MIMEMultipart()
-    body = MIMEText(str(buildEmailBody(room)).strip())
+    body = MIMEText(str(buildEmailBody(room, date)).strip())
 
     msg['Subject'] = "Daily Spark Summary for %s" % room.title
     msg['From'] = sender
@@ -89,5 +102,10 @@ def sendEmail(room):
     return
 
 if __name__ == "__main__":
-    sendEmail(room)
+    today = datetime.datetime.now().date()
+    yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+
+    date = yesterday
+
+    sendEmail(room, date)
 

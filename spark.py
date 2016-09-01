@@ -71,7 +71,7 @@ class ROOM(object):
     @property
     def getMessages(self):
         #date = datetime.datetime.now().date()
-        date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+        #date = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
         local_timezone = tzlocal.get_localzone()
 
         url = "https://api.ciscospark.com/v1/messages"
@@ -87,16 +87,16 @@ class ROOM(object):
         response = requests.request("GET", url, headers=headers, params=querystring)
         messages = json.loads(response.content)
         messages = messages[u'items']
-        todaymsg_list = []
-
-        for message in messages:
-            utcmsgdate = message[u'created']
-            utcmsgdate = iso8601.parse_date(utcmsgdate)
-            msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-            msgdate = msgdate.date()
-            if date == msgdate:
-                # print message[u'personEmail'], ": ", message[u'text']
-                todaymsg_list.append(message)
+        #todaymsg_list = []
+        todaymsg_list = messages
+        #for message in messages:
+        #    utcmsgdate = message[u'created']
+        #    utcmsgdate = iso8601.parse_date(utcmsgdate)
+        #    msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+        #    msgdate = msgdate.date()
+        #    if date == msgdate:
+        #        # print message[u'personEmail'], ": ", message[u'text']
+        #        todaymsg_list.append(message)
         if len(todaymsg_list) == 0:
             sys.exit("No Messages to send")
         return todaymsg_list
