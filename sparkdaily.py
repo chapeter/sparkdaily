@@ -45,7 +45,7 @@ def msgByDate(room, date, timezone):
     to_zone = timezone
 
     count = 1
-    for message in room.messages:
+    for message in room.getMsgBeforeDate(date):
         utc = iso8601.parse_date(message[u'created'])
         utc = utc.replace(tzinfo=from_zone)
         local = utc.astimezone(to_zone)
@@ -116,7 +116,7 @@ def sendEmail(room, date, timezone):
     userid=os.environ['GMAIL_USERID']
     passwd=os.environ['GMAIL_PASSWORD']
     server.login(userid,passwd)
-    #server.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
+    server.sendmail(msg["From"], msg["To"].split(","), msg.as_string())
 
     print "email sent"
 
@@ -128,11 +128,8 @@ if __name__ == "__main__":
     yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))
     timezone = tz.gettz("America/Chicago")
 
-    print yesterdayiso
-    print yesterdayiso.isoformat()
-
     date = yesterday
 
 
-    #sendEmail(room, date, timezone)
+    sendEmail(room, date, timezone)
 

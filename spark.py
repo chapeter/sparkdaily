@@ -22,7 +22,7 @@ class ROOM(object):
         self.title = self.getRoomTitle
         self.urlid = self.getRoomURL
         self.users = self.getUsers
-        self.messages = self.getMessages
+        #self.messages = self.getMessages
 
 
 
@@ -88,42 +88,33 @@ class ROOM(object):
         headers = {
             'authorization': self.auth,
             'cache-control': "no-cache",
-            'content-type': 'application/json',
-            'max': 100
-        }
+            'content-type': 'application/json'}
 
         response = requests.request("GET", url, headers=headers, params=querystring)
         messages = json.loads(response.content)
         messages = messages[u'items']
         #todaymsg_list = []
         todaymsg_list = messages
-        #for message in messages:
-        #    utcmsgdate = message[u'created']
-        #    utcmsgdate = iso8601.parse_date(utcmsgdate)
-        #    msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-        #    msgdate = msgdate.date()
-        #    if date == msgdate:
-        #        # print message[u'personEmail'], ": ", message[u'text']
-        #        todaymsg_list.append(message)
         if len(todaymsg_list) == 0:
             sys.exit("No Messages to send")
         return todaymsg_list
 
     def getMsgBeforeDate(self, date):
         tz = pytz.timezone("America/Chicago")
-        print date
+        date = date + datetime.timedelta(days=1)
         midnight = datetime.datetime.combine(date, datetime.time())
         print midnight
         datestring = midnight.strftime('%Y-%m-%dT%H:%m:%S.%f')[:-3] + "-05:00"
         print datestring
         url = "https://api.ciscospark.com/v1/messages"
 
-        querystring = {"roomId": self.roomId}
+        querystring = {"roomId": self.roomId,
+                       'before': str(datestring)
+                       }
         headers = {
             'authorization': self.auth,
             'cache-control': "no-cache",
-            'content-type': 'application/json',
-            'before': str(datestring)
+            'content-type': 'application/json'
         }
 
         response = requests.request("GET", url, headers=headers, params=querystring)
