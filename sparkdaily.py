@@ -52,26 +52,19 @@ def msgByDate(room, date, timezone):
 
         print str(count), date, local.date(), message
         count = count+1
-        #if date == local.date():
-            # print message[u'personEmail'], ": ", message[u'text']
-        #    datemsglist.append(message)
-        datemsglist.append(message)
-
+        if date == local.date():
+            #print message[u'personEmail'], ": ", message[u'text']
+            datemsglist.append(message)
     return datemsglist
-
 
 
 def buildEmailBody(room, date, timezone):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (room.title, date.month, date.day, date.year)
-    local_timezone = timezone
     messages = msgByDate(room, date, timezone)
 
     for message in reversed(messages):
-        if 'text' in message.keys():
-            #utcmsgtime = message['created']
-            #utcmsgtime = iso8601.parse_date(utcmsgtime)
-            #localmsgtime = utcmsgtime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+        if u'text' in message.keys():
             localmsgtime = shiftToLocal(message[u'created'], timezone)
             timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
             displayname = getDisplayName(message['personId'], room.users)
@@ -123,9 +116,9 @@ def sendEmail(room, date, timezone):
     return
 
 if __name__ == "__main__":
-    today = datetime.datetime.now().date()
+    #today = datetime.datetime.now().date()
     yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
-    yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))
+    #yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))
     timezone = tz.gettz("America/Chicago")
 
     date = yesterday
