@@ -13,6 +13,8 @@ import os
 from dateutil import tz
 
 
+
+
 token = os.environ['SPARK_TOKEN']
 room = os.environ['SPARK_ROOM']
 auth = "Bearer %s" % token
@@ -116,6 +118,7 @@ def sendEmail(room, date, timezone):
     return
 
 if __name__ == "__main__":
+
     #today = datetime.datetime.now().date()
     yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
     #yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))

@@ -12,6 +12,6 @@ RUN chmod 0644 crontab
 RUN cp crontab /etc/crontabs/root
 RUN touch /var/log/cron.log
 
-EXPOSE 80
+EXPOSE 5000
 
-CMD crond && tail -f /var/log/cron.log
+CMD crond && python healthcheck.py
