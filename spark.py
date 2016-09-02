@@ -68,6 +68,13 @@ class ROOM(object):
 
         return user_list
 
+    def shiftTimeZone(self, timestamp):
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz('America/Chicago')
+
+
+
+
     @property
     def getMessages(self):
         #date = datetime.datetime.now().date()
@@ -75,13 +82,14 @@ class ROOM(object):
         local_timezone = tzlocal.get_localzone()
 
         url = "https://api.ciscospark.com/v1/messages"
-        querystring = {"roomId": self.roomId,
-                       "max": 50}
-
+        #querystring = {"roomId": self.roomId,
+        #               "max": 50}
+        querystring = {"roomId": self.roomId}
         headers = {
             'authorization': self.auth,
             'cache-control': "no-cache",
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'max': 100
         }
 
         response = requests.request("GET", url, headers=headers, params=querystring)
@@ -101,6 +109,30 @@ class ROOM(object):
             sys.exit("No Messages to send")
         return todaymsg_list
 
+    def getMsgBeforeDate(self, date):
+        tz = pytz.timezone("America/Chicago")
+        print date
+        midnight = datetime.datetime.combine(date, datetime.time())
+        print midnight
+        datestring = midnight.strftime('%Y-%m-%dT%H:%m:%S.%f')[:-3] + "-05:00"
+        print datestring
+        url = "https://api.ciscospark.com/v1/messages"
+
+        querystring = {"roomId": self.roomId}
+        headers = {
+            'authorization': self.auth,
+            'cache-control': "no-cache",
+            'content-type': 'application/json',
+            'before': str(datestring)
+        }
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        messages = json.loads(response.content)
+        messages = messages[u'items']
+        todaymsg_list = messages
+        if len(todaymsg_list) == 0:
+            sys.exit("No Messages to send")
+        return todaymsg_list
 
 
 class USER(object):
