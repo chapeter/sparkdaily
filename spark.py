@@ -22,7 +22,7 @@ class ROOM(object):
         self.title = self.getRoomTitle
         self.urlid = self.getRoomURL
         self.users = self.getUsers
-        self.messages = self.getMessages
+        #self.messages = self.getMessages
 
 
 
@@ -68,6 +68,13 @@ class ROOM(object):
 
         return user_list
 
+    def shiftTimeZone(self, timestamp):
+        from_zone = tz.gettz('UTC')
+        to_zone = tz.gettz('America/Chicago')
+
+
+
+
     @property
     def getMessages(self):
         #date = datetime.datetime.now().date()
@@ -75,9 +82,35 @@ class ROOM(object):
         local_timezone = tzlocal.get_localzone()
 
         url = "https://api.ciscospark.com/v1/messages"
-        querystring = {"roomId": self.roomId,
-                       "max": 50}
+        #querystring = {"roomId": self.roomId,
+        #               "max": 50}
+        querystring = {"roomId": self.roomId}
+        headers = {
+            'authorization': self.auth,
+            'cache-control': "no-cache",
+            'content-type': 'application/json'}
 
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        messages = json.loads(response.content)
+        messages = messages[u'items']
+        #todaymsg_list = []
+        todaymsg_list = messages
+        if len(todaymsg_list) == 0:
+            sys.exit("No Messages to send")
+        return todaymsg_list
+
+    def getMsgBeforeDate(self, date):
+        tz = pytz.timezone("America/Chicago")
+        date = date + datetime.timedelta(days=1)
+        midnight = datetime.datetime.combine(date, datetime.time())
+        print midnight
+        datestring = midnight.strftime('%Y-%m-%dT%H:%m:%S.%f')[:-3] + "-05:00"
+        print datestring
+        url = "https://api.ciscospark.com/v1/messages"
+
+        querystring = {"roomId": self.roomId,
+                       'before': str(datestring)
+                       }
         headers = {
             'authorization': self.auth,
             'cache-control': "no-cache",
@@ -87,20 +120,10 @@ class ROOM(object):
         response = requests.request("GET", url, headers=headers, params=querystring)
         messages = json.loads(response.content)
         messages = messages[u'items']
-        #todaymsg_list = []
         todaymsg_list = messages
-        #for message in messages:
-        #    utcmsgdate = message[u'created']
-        #    utcmsgdate = iso8601.parse_date(utcmsgdate)
-        #    msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-        #    msgdate = msgdate.date()
-        #    if date == msgdate:
-        #        # print message[u'personEmail'], ": ", message[u'text']
-        #        todaymsg_list.append(message)
         if len(todaymsg_list) == 0:
             sys.exit("No Messages to send")
         return todaymsg_list
-
 
 
 class USER(object):

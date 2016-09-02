@@ -10,6 +10,8 @@ import datetime
 import pytz
 import tzlocal
 import os
+from dateutil import tz
+
 
 token = os.environ['SPARK_TOKEN']
 room = os.environ['SPARK_ROOM']
@@ -26,32 +28,51 @@ def getDisplayName(personId, users):
             return user.displayname
     return "userID not found"
 
+def shiftToLocal(date, timezone):
+    from_zone = tz.gettz('UTC')
+    to_zone = timezone
 
-def msgByDate(room, date):
-    local_timezone = tzlocal.get_localzone()
+    utc = iso8601.parse_date(date)
+    utc = utc.replace(tzinfo=from_zone)
+    local = utc.astimezone(to_zone)
+
+    return local
+
+def msgByDate(room, date, timezone):
     datemsglist = []
-    for message in room.messages:
-        utcmsgdate = message[u'created']
-        utcmsgdate = iso8601.parse_date(utcmsgdate)
-        msgdate = utcmsgdate.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-        msgdate = msgdate.date()
-        if date == msgdate:
+
+    from_zone = tz.gettz('UTC')
+    to_zone = timezone
+
+    count = 1
+    for message in room.getMsgBeforeDate(date):
+        utc = iso8601.parse_date(message[u'created'])
+        utc = utc.replace(tzinfo=from_zone)
+        local = utc.astimezone(to_zone)
+
+        print str(count), date, local.date(), message
+        count = count+1
+        #if date == local.date():
             # print message[u'personEmail'], ": ", message[u'text']
-            datemsglist.append(message)
+        #    datemsglist.append(message)
+        datemsglist.append(message)
+
     return datemsglist
 
 
-def buildEmailBody(room, date):
+
+def buildEmailBody(room, date, timezone):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (room.title, date.month, date.day, date.year)
-    local_timezone = tzlocal.get_localzone()
-    messages = msgByDate(room, date)
+    local_timezone = timezone
+    messages = msgByDate(room, date, timezone)
 
     for message in reversed(messages):
         if 'text' in message.keys():
-            utcmsgtime = message['created']
-            utcmsgtime = iso8601.parse_date(utcmsgtime)
-            localmsgtime = utcmsgtime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+            #utcmsgtime = message['created']
+            #utcmsgtime = iso8601.parse_date(utcmsgtime)
+            #localmsgtime = utcmsgtime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+            localmsgtime = shiftToLocal(message[u'created'], timezone)
             timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
             displayname = getDisplayName(message['personId'], room.users)
             body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
@@ -61,7 +82,7 @@ def buildEmailBody(room, date):
     return body
 
 
-def sendEmail(room, date):
+def sendEmail(room, date, timezone):
     sender = os.environ['SENDER']
     #server = os.environ['SERVER']
 
@@ -75,7 +96,7 @@ def sendEmail(room, date):
             userarray.append(email)
 
     msg = MIMEMultipart()
-    body = MIMEText(str(buildEmailBody(room, date)).strip())
+    body = MIMEText(str(buildEmailBody(room, date, timezone)).strip())
 
     msg['Subject'] = "Daily Spark Summary for %s" % room.title
     msg['From'] = sender
@@ -104,8 +125,11 @@ def sendEmail(room, date):
 if __name__ == "__main__":
     today = datetime.datetime.now().date()
     yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+    yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))
+    timezone = tz.gettz("America/Chicago")
 
     date = yesterday
 
-    sendEmail(room, date)
+
+    sendEmail(room, date, timezone)
 
