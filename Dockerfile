@@ -14,4 +14,4 @@ RUN touch /var/log/cron.log
 
 EXPOSE 80
 
-CMD crond
+CMD crond && tail -f /var/log/cron.log
