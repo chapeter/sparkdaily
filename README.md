@@ -12,12 +12,14 @@ Sparkdaily is curretly setup to use GMAIL as the outgoing SMTP server, but can e
   pip install -r requirements.txt
   ```
 4. Set environment variables
+  
   ```
-  export SPARK_TOKEN=<YOUR SPARK TOKEN FROM STEP 1>
-  export SPARK_ROOM=<YOUR SPARK ROOM ID FROM STEP 2>
-  export SENDER=<YOUR EMAIL ADDRESS>
-  export GMAIL_USER=<YOUR GMAIL USER ACCOUNT>
-  export GMAIL_PASSWORD=<YOUR EMAIL PASSWORD>
+  export SPARK_TOKEN=<YOUR SPARK TOKEN FROM STEP 1> 
+  export SPARK_ROOM=<YOUR SPARK ROOM ID FROM STEP 2> 
+  export SENDER=<YOUR EMAIL ADDRESS> 
+  export GMAIL_USER=<YOUR GMAIL USER ACCOUNT> 
+  export GMAIL_PASSWORD=<YOUR EMAIL PASSWORD> 
   ```
 5. Run the app
+  
   ```python sparkdaily.py```
