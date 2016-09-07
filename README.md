@@ -1,5 +1,6 @@
 Sparkdaily is a Python application which will send an email of all the conversations that happened yesterday for a given room to all memebers.
 
+
 Sparkdaily is curretly setup to use GMAIL as the outgoing SMTP server, but can easily be changed to any SMTP server.
 
 
