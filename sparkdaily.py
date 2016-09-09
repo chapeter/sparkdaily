@@ -11,6 +11,7 @@ import pytz
 import tzlocal
 import os
 from dateutil import tz
+import sys
 
 
 
@@ -64,13 +65,17 @@ def buildEmailBody(room, date, timezone):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (room.title, date.month, date.day, date.year)
     messages = msgByDate(room, date, timezone)
-
-    for message in reversed(messages):
-        if u'text' in message.keys():
-            localmsgtime = shiftToLocal(message[u'created'], timezone)
-            timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
-            displayname = getDisplayName(message['personId'], room.users)
-            body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
+    
+    if len(messages) == 0:
+        print "No messages to send"
+        sys.exit(0)
+    else:
+        for message in reversed(messages):
+            if u'text' in message.keys():
+                localmsgtime = shiftToLocal(message[u'created'], timezone)
+                timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
+                displayname = getDisplayName(message['personId'], room.users)
+                body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
 
     body = body.encode('utf-8')
 
