@@ -23,7 +23,12 @@ room = ROOM(auth, room)
 
 
 
-
+def timeFixUp(time):
+    if time < 10:
+        newtime = "0" + str(time)
+    else:
+        newtime = str(time)
+    return newtime
 
 def getDisplayName(personId, users):
     for user in users:
@@ -73,7 +78,7 @@ def buildEmailBody(room, date, timezone):
         for message in reversed(messages):
             if u'text' in message.keys():
                 localmsgtime = shiftToLocal(message[u'created'], timezone)
-                timestamp = str(localmsgtime.hour) + ":" +str(localmsgtime.minute) + ":" + str(localmsgtime.second)
+                timestamp = timeFixUp(localmsgtime.hour) + ":" + timeFixUp(localmsgtime.minute) + ":" + timeFixUp(localmsgtime.second)
                 displayname = getDisplayName(message['personId'], room.users)
                 body = body + "%s - %s: %s \n" % (timestamp, displayname, message['text'])
 
