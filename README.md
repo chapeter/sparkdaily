@@ -24,3 +24,5 @@ Sparkdaily is curretly setup to use GMAIL as the outgoing SMTP server, but can e
 5. Run the app
   
   ```python sparkdaily.py```
+
+.
