@@ -12,7 +12,8 @@ import tzlocal
 import os
 from dateutil import tz
 import sys
-
+from jinja2 import Environment, PackageLoader
+from premailer import transform
 
 
 
@@ -58,7 +59,7 @@ def msgByDate(room, date, timezone):
         utc = utc.replace(tzinfo=from_zone)
         local = utc.astimezone(to_zone)
 
-        print str(count), date, local.date(), message
+        #print str(count), date, local.date(), message
         count = count+1
         if date == local.date():
             #print message[u'personEmail'], ": ", message[u'text']
@@ -70,7 +71,7 @@ def buildEmailBody(room, date, timezone):
     body = "Here is what you may have missed yesterday in %s, %s-%s-%s:\n" \
            % (room.title, date.month, date.day, date.year)
     messages = msgByDate(room, date, timezone)
-    
+
     if len(messages) == 0:
         print "No messages to send"
         sys.exit(0)
@@ -86,6 +87,29 @@ def buildEmailBody(room, date, timezone):
 
     return body
 
+def buildHTML(room, date, timezone):
+    datestring = str(date.month) +"/" + str(date.day) + "/" + str(date.year)
+    messages = msgByDate(room, date,timezone)
+    roomtitle = room.title
+    if len(messages) == 0:
+        print "no messages to send, exiting"
+        sys.exit(0)
+    else:
+        for message in reversed(messages):
+            if u'text' in message.keys():
+                message['localmsgtime'] = shiftToLocal(message[u'created'], timezone)
+                message['timestamp'] = timeFixUp(message['localmsgtime'].hour) + ":" + timeFixUp(message['localmsgtime'].minute) + ":" + timeFixUp(message['localmsgtime'].second)
+                message['displayname'] = getDisplayName(message['personId'], room.users)
+
+    env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
+    template = env.get_template('newsletter.html')
+    html = template.render(roomtitle=roomtitle, messages=reversed(messages), datestring=datestring)
+    emailhtml = transform(html)
+
+    #print emailhtml
+
+    return emailhtml
+
 
 def sendEmail(room, date, timezone):
     sender = os.environ['SENDER']
@@ -100,15 +124,18 @@ def sendEmail(room, date, timezone):
             #if email not in config.ignorelist:
             userarray.append(email)
 
-    msg = MIMEMultipart()
-    body = MIMEText(str(buildEmailBody(room, date, timezone)).strip())
+    msg = MIMEMultipart('alternitive')
+    #textbody = MIMEText(str(buildEmailBody(room, date, timezone)).strip())
+    htmlbody = MIMEText(buildHTML(room, date, timezone), 'html')
+
+    #print htmlbody
 
     msg['Subject'] = "Daily Spark Summary for %s" % room.title
     msg['From'] = sender
     msg['To'] = ", ".join(userarray)
-    msg.attach(body)
+    #msg.attach(textbody)
+    msg.attach(htmlbody)
 
-    print msg
 
     #smtpObj = smtplib.SMTP(server, server_port)
     #smtpObj.sendmail(msg["From"], msg["To"].split(","), msg.as_string())

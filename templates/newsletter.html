@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Sparkdaily{% endblock %}
+
+{% block body %}
+
+
+<p align="center"><img src="https://trupartnercu.org/wp-content/uploads/2015/03/01.jpg" alt="" width="709" height="231" align="middle"/></p>
+
+<h1 style="text-align: center;">SparkDaily for {{ roomtitle }} on {{ datestring }}</h1>
+<h3 style="text-align: center;">News you missed</h3>
+
+
+<table align="center">
+    <tr>
+        <th>Time</th><th>User</th><th>Message</th>
+    </tr>
+    {% for message in messages %}
+    <tr>
+        <td>{{ message['timestamp'] }}</td>
+        <td>{{ message['displayname'] }}</td>
+        <td>{{ message['text'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
