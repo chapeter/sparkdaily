@@ -1,6 +1,8 @@
 FROM chapeter/alpine
 MAINTAINER Chad Peterson, chapeter@cisco.com
 
+RUN apk add gcc
+
 WORKDIR /home
 COPY . sparkdaily/
 WORKDIR sparkdaily
