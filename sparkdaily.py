@@ -107,10 +107,6 @@ def buildHTML(room, date, timezone):
     template = env.get_template('newsletter.html')
     html = template.render(roomtitle=roomtitle, messages=reversed(messages), datestring=datestring)
 
-    #emailhtml = transform(html)
-
-
-    #print emailhtml
 
     return html
 
