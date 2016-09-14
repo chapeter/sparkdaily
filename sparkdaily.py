@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'Chad Peterson'
 __email__ = 'chapeter@cisco.com'
 
@@ -13,8 +14,8 @@ import os
 from dateutil import tz
 import sys
 from jinja2 import Environment, PackageLoader
-from premailer import transform
-
+#from premailer import transform
+from ftfy import fix_text
 
 
 token = os.environ['SPARK_TOKEN']
@@ -100,17 +101,18 @@ def buildHTML(room, date, timezone):
                 message['localmsgtime'] = shiftToLocal(message[u'created'], timezone)
                 message['timestamp'] = timeFixUp(message['localmsgtime'].hour) + ":" + timeFixUp(message['localmsgtime'].minute) + ":" + timeFixUp(message['localmsgtime'].second)
                 message['displayname'] = getDisplayName(message['personId'], room.users)
-                message[u'text'] = str(message[u'text']).encode('utf-8')
+                message[u'text'] = fix_text(message[u'text'], normalization="NFKC")
 
     env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
     template = env.get_template('newsletter.html')
     html = template.render(roomtitle=roomtitle, messages=reversed(messages), datestring=datestring)
-    emailhtml = str(transform(html))
-    #emailhtml = (html)
+
+    #emailhtml = transform(html)
+
 
     #print emailhtml
 
-    return emailhtml
+    return html
 
 
 def sendEmail(room, date, timezone):
