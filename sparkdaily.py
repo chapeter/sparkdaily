@@ -13,7 +13,7 @@ import os
 from dateutil import tz
 import sys
 from jinja2 import Environment, PackageLoader
-from premailer import transform
+#from premailer import transform
 
 
 
@@ -104,7 +104,8 @@ def buildHTML(room, date, timezone):
     env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
     template = env.get_template('newsletter.html')
     html = template.render(roomtitle=roomtitle, messages=reversed(messages), datestring=datestring)
-    emailhtml = transform(html)
+    #emailhtml = transform(html)
+    emailhtml = (html)
 
     #print emailhtml
 

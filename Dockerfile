@@ -2,9 +2,10 @@ FROM chapeter/alpine
 MAINTAINER Chad Peterson, chapeter@cisco.com
 
 WORKDIR /home
-RUN git clone http://github.com/chapeter/sparkdaily
+COPY . sparkdaily/
 WORKDIR sparkdaily
 
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 RUN echo '0 5 * * * /usr/bin/python /home/sparkdaily/sparkdaily.py >> /var/log/cron.log 2>&1' > crontab
