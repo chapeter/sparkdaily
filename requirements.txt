@@ -6,3 +6,4 @@ wheel==0.24.0
 pytz
 tzlocal
 flask
+ftfy

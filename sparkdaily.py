@@ -13,7 +13,7 @@ import os
 from dateutil import tz
 import sys
 from jinja2 import Environment, PackageLoader
-#from premailer import transform
+from premailer import transform
 
 
 
@@ -100,12 +100,13 @@ def buildHTML(room, date, timezone):
                 message['localmsgtime'] = shiftToLocal(message[u'created'], timezone)
                 message['timestamp'] = timeFixUp(message['localmsgtime'].hour) + ":" + timeFixUp(message['localmsgtime'].minute) + ":" + timeFixUp(message['localmsgtime'].second)
                 message['displayname'] = getDisplayName(message['personId'], room.users)
+                message[u'text'] = str(message[u'text']).encode('utf-8')
 
     env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
     template = env.get_template('newsletter.html')
     html = template.render(roomtitle=roomtitle, messages=reversed(messages), datestring=datestring)
-    #emailhtml = transform(html)
-    emailhtml = (html)
+    emailhtml = str(transform(html))
+    #emailhtml = (html)
 
     #print emailhtml
 
