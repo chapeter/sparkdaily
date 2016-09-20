@@ -101,6 +101,8 @@ def buildHTML(room, date, timezone):
                 message['localmsgtime'] = shiftToLocal(message[u'created'], timezone)
                 message['timestamp'] = timeFixUp(message['localmsgtime'].hour) + ":" + timeFixUp(message['localmsgtime'].minute) + ":" + timeFixUp(message['localmsgtime'].second)
                 message['displayname'] = getDisplayName(message['personId'], room.users)
+                #Below is new test
+                message[u'text'] = message[u'text'].decode("utf-8).replace(u"\2022","-").encode("utf-8")
                 message[u'text'] = fix_text(message[u'text'], normalization="NFKC")
 
     env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
