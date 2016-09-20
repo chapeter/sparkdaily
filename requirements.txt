@@ -7,3 +7,4 @@ pytz
 tzlocal
 flask
 ftfy
+boto3

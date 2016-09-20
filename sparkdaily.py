@@ -19,9 +19,9 @@ from ftfy import fix_text
 
 
 token = os.environ['SPARK_TOKEN']
-room = os.environ['SPARK_ROOM']
+#room = os.environ['SPARK_ROOM']
 auth = "Bearer %s" % token
-room = ROOM(auth, room)
+#room = ROOM(auth, room)
 
 
 
@@ -130,7 +130,7 @@ def sendEmail(room, date, timezone):
 
     #print htmlbody
 
-    msg['Subject'] = "Daily Spark Summary for %s" % room.title
+    msg['Subject'] = "**TEST**Daily Spark Summary for %s" % room.title
     msg['From'] = sender
     msg['To'] = ", ".join(userarray)
     #msg.attach(textbody)
@@ -154,8 +154,7 @@ def sendEmail(room, date, timezone):
 
     return
 
-if __name__ == "__main__":
-
+def run(room):
     #today = datetime.datetime.now().date()
     yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
     #yesterdayiso = (datetime.datetime.now() - datetime.timedelta(days=1))
