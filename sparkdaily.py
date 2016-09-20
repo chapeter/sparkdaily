@@ -101,6 +101,10 @@ def buildHTML(room, date, timezone):
                 message['localmsgtime'] = shiftToLocal(message[u'created'], timezone)
                 message['timestamp'] = timeFixUp(message['localmsgtime'].hour) + ":" + timeFixUp(message['localmsgtime'].minute) + ":" + timeFixUp(message['localmsgtime'].second)
                 message['displayname'] = getDisplayName(message['personId'], room.users)
+                ##Need to work on this more.  Need to account for Ellips before we ignore it.  Need to figure out bullets
+                ##For now this will just ignore thigns that don't directly convert to ascii
+                message[u'text'] = message[u'text'].encode("ascii","ignore")
+                message[u'text'] = message[u'text'].decode("utf-8")
                 message[u'text'] = fix_text(message[u'text'], normalization="NFKC")
 
     env = Environment(loader=PackageLoader('sparkdaily', 'templates'))
